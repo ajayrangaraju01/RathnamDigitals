@@ -91,7 +91,7 @@ $serviceChoices = getServiceChoices();
         <div class="info-panel muted-panel">
             <span class="section-kicker">Quick contact</span>
             <p><strong>Call:</strong> <a href="tel:+919876543210">+91 98765 43210</a></p>
-            <p><strong>Email:</strong> <a href="mailto:info@ratnamdigitals.com">info@ratnamdigitals.com</a></p>
+            <p><strong>Email:</strong> <a href="mailto:info@ratnamphotography.com">info@ratnamphotography.com</a></p>
             <p><strong>Studio:</strong> Hyderabad, Telangana</p>
         </div>
     </aside>

@@ -75,6 +75,14 @@ img {
     color: #fff;
 }
 
+.navbar .logo span {
+    font-family: 'Century Gothic', 'Segoe UI', sans-serif;
+    font-size: 0.8em;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
 .logo-img {
     width: 42px;
     height: 42px;

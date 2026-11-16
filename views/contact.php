@@ -9,7 +9,7 @@ $title = 'Contact Us - Ratnam Photography';
     <div class="contact-details panel-card">
         <h3>Get In Touch</h3>
         <p><strong>Phone:</strong> <a href="tel:+919876543210">+91 98765 43210</a></p>
-        <p><strong>Email:</strong> <a href="mailto:info@ratnamdigitals.com">info@ratnamdigitals.com</a></p>
+        <p><strong>Email:</strong> <a href="mailto:info@ratnamphotography.com">info@ratnamphotography.com</a></p>
         <p><strong>Address:</strong> 123 Photography Lane, Art District, Hyderabad, Telangana 500001</p>
         <br>
         <h3>Studio Hours</h3>
@@ -37,7 +37,7 @@ $title = 'Contact Us - Ratnam Photography';
             </div>
             <div>
                 <span>Email</span>
-                <strong>info@ratnamdigitals.com</strong>
+                <strong>info@ratnamphotography.com</strong>
             </div>
         </div>
     </div>
