@@ -1,157 +1,199 @@
 <?php
 
+function loadAppEnvironment(string $path): void
+{
+    if (!is_file($path)) {
+        return;
+    }
+
+    $contents = file_get_contents($path);
+    if ($contents === false) {
+        throw new RuntimeException('Unable to read the application .env file.');
+    }
+
+    $allowedVariables = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'];
+    foreach (preg_split('/\r\n|\r|\n/', $contents) ?: [] as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
+            continue;
+        }
+
+        [$name, $value] = explode('=', $line, 2);
+        $name = trim($name);
+        $value = trim($value);
+        if (!in_array($name, $allowedVariables, true) || getenv($name) !== false) {
+            continue;
+        }
+
+        if (strlen($value) >= 2 && (($value[0] === '"' && $value[-1] === '"') || ($value[0] === "'" && $value[-1] === "'"))) {
+            $value = substr($value, 1, -1);
+        }
+
+        putenv($name . '=' . $value);
+        $_ENV[$name] = $value;
+    }
+}
+
 function getDb(): PDO
 {
     static $pdo = null;
 
     if ($pdo === null) {
-        $pdo = new PDO('sqlite:' . DB_PATH);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $host = getenv('DB_HOST') ?: '127.0.0.1';
+        $port = getenv('DB_PORT') ?: '3306';
+        $database = getenv('DB_NAME') ?: '';
+        $username = getenv('DB_USER') ?: '';
+        $password = getenv('DB_PASSWORD');
+
+        if ($database === '' || $username === '') {
+            throw new RuntimeException('MySQL configuration is missing. Set DB_NAME and DB_USER in the environment.');
+        }
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $database)) {
+            throw new RuntimeException('DB_NAME may contain only letters, numbers, and underscores.');
+        }
+        if (!preg_match('/^\d+$/', $port) || (int) $port < 1 || (int) $port > 65535) {
+            throw new RuntimeException('DB_PORT must be a valid TCP port.');
+        }
+        if (!in_array('mysql', PDO::getAvailableDrivers(), true)) {
+            throw new RuntimeException('The PDO MySQL driver is not enabled. Enable pdo_mysql in php.ini and restart PHP.');
+        }
+
+        $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $database);
+        $pdo = new PDO($dsn, $username, $password === false ? '' : $password, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]);
     }
 
     return $pdo;
 }
 
-function ensureAppDatabase(): void
+function ensureAppDatabase(bool $seedDefaultPackages = true): void
 {
     $pdo = getDb();
 
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS images (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            file TEXT NOT NULL,
-            category TEXT DEFAULT 'other',
-            caption TEXT DEFAULT '',
-            is_featured INTEGER DEFAULT 0,
-            carousel_crop_x REAL DEFAULT 50,
-            carousel_crop_y REAL DEFAULT 50,
-            uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NULL,
+            file VARCHAR(1024) NOT NULL,
+            category VARCHAR(50) DEFAULT 'other',
+            caption TEXT,
+            is_featured TINYINT(1) NOT NULL DEFAULT 0,
+            carousel_crop_x DOUBLE NOT NULL DEFAULT 50,
+            carousel_crop_y DOUBLE NOT NULL DEFAULT 50,
+            uploaded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
-
-    $imageColumns = $pdo->query('PRAGMA table_info(images)')->fetchAll(PDO::FETCH_COLUMN, 1);
-    if (!in_array('carousel_crop_x', $imageColumns, true)) {
-        $pdo->exec('ALTER TABLE images ADD COLUMN carousel_crop_x REAL DEFAULT 50');
-    }
-    if (!in_array('carousel_crop_y', $imageColumns, true)) {
-        $pdo->exec('ALTER TABLE images ADD COLUMN carousel_crop_y REAL DEFAULT 50');
-    }
 
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS booking_requests (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            client_name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            phone TEXT DEFAULT '',
-            service_type TEXT NOT NULL,
-            requested_date TEXT NOT NULL,
-            requested_time TEXT DEFAULT '',
-            notes TEXT DEFAULT '',
-            status TEXT DEFAULT 'pending',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            client_name VARCHAR(255) NOT NULL,
+            email VARCHAR(320) NOT NULL,
+            phone VARCHAR(50) NOT NULL DEFAULT '',
+            service_type VARCHAR(100) NOT NULL,
+            requested_date VARCHAR(32) NOT NULL,
+            requested_time VARCHAR(32) NOT NULL DEFAULT '',
+            notes TEXT,
+            status VARCHAR(32) NOT NULL DEFAULT 'pending',
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
 
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS services (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
             description TEXT NOT NULL,
-            price TEXT NOT NULL,
-            service_icon TEXT DEFAULT '',
-            background_image TEXT DEFAULT '',
-            service_crop_x REAL DEFAULT 50,
-            service_crop_y REAL DEFAULT 50,
-            order_index INTEGER DEFAULT 0,
-            is_active INTEGER DEFAULT 1,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"
+            price VARCHAR(255) NOT NULL,
+            service_icon VARCHAR(255) NOT NULL DEFAULT '',
+            background_image VARCHAR(1024) NOT NULL DEFAULT '',
+            service_crop_x DOUBLE NOT NULL DEFAULT 50,
+            service_crop_y DOUBLE NOT NULL DEFAULT 50,
+            order_index INT NOT NULL DEFAULT 0,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
-
-    $serviceColumns = $pdo->query('PRAGMA table_info(services)')->fetchAll(PDO::FETCH_COLUMN, 1);
-    if (!in_array('service_icon', $serviceColumns, true)) {
-        $pdo->exec("ALTER TABLE services ADD COLUMN service_icon TEXT DEFAULT ''");
-    }
-    if (!in_array('service_crop_x', $serviceColumns, true)) {
-        $pdo->exec('ALTER TABLE services ADD COLUMN service_crop_x REAL DEFAULT 50');
-    }
-    if (!in_array('service_crop_y', $serviceColumns, true)) {
-        $pdo->exec('ALTER TABLE services ADD COLUMN service_crop_y REAL DEFAULT 50');
-    }
 
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS hero_slides (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            subtitle TEXT DEFAULT '',
-            media_file TEXT DEFAULT '',
-            overlay_opacity INTEGER DEFAULT 50,
-            button_text TEXT DEFAULT 'Book a Session',
-            button_link TEXT DEFAULT '/book',
-            order_index INTEGER DEFAULT 0,
-            is_active INTEGER DEFAULT 1,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            subtitle TEXT,
+            media_file VARCHAR(1024) NOT NULL DEFAULT '',
+            overlay_opacity INT NOT NULL DEFAULT 50,
+            button_text VARCHAR(255) NOT NULL DEFAULT 'Book a Session',
+            button_link VARCHAR(1024) NOT NULL DEFAULT '/book',
+            order_index INT NOT NULL DEFAULT 0,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
 
-    $packagesTableExists = (bool) $pdo->query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'packages'")->fetchColumn();
+    $packagesTableExists = (bool) $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'packages'")->fetchColumn();
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS packages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            price TEXT NOT NULL,
-            description TEXT NOT NULL DEFAULT '',
-            items TEXT NOT NULL DEFAULT '',
-            is_featured INTEGER DEFAULT 0,
-            is_active INTEGER DEFAULT 1,
-            order_index INTEGER DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )"
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            price VARCHAR(255) NOT NULL,
+            description TEXT NOT NULL,
+            items TEXT NOT NULL,
+            is_featured TINYINT(1) NOT NULL DEFAULT 0,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            order_index INT NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
 
-    if (!$packagesTableExists) {
-        $defaultPackages = [
-            [
-                'Signature Portrait',
-                '₹12,000',
-                'Perfect for personal branding, lifestyle sessions, or modern portraits.',
-                "1 hour session\nProfessional editing\n20 final images",
-                0,
-                0,
-            ],
-            [
-                'Wedding Story',
-                '₹35,000',
-                'A complete documentary-style coverage designed around your celebration.',
-                "8 hours coverage\nCandid + portrait coverage\nHigh-resolution gallery",
-                1,
-                1,
-            ],
-            [
-                'Brand Content',
-                '₹22,000',
-                'Creative, polished imagery for founders, businesses, and campaigns.',
-                "Creative direction\nStudio or location shoot\nSocial-ready export set",
-                0,
-                2,
-            ],
-        ];
-        $insertPackage = $pdo->prepare('INSERT INTO packages (name, price, description, items, is_featured, order_index) VALUES (:name, :price, :description, :items, :is_featured, :order_index)');
-        foreach ($defaultPackages as [$name, $price, $description, $items, $featured, $order]) {
-            $insertPackage->execute([
-                ':name' => $name,
-                ':price' => $price,
-                ':description' => $description,
-                ':items' => $items,
-                ':is_featured' => $featured,
-                ':order_index' => $order,
-            ]);
-        }
+    if (!$packagesTableExists && $seedDefaultPackages) {
+        seedDefaultPackages($pdo);
+    }
+}
+
+function seedDefaultPackages(PDO $pdo): void
+{
+    $defaultPackages = [
+        [
+            'Signature Portrait',
+            '₹12,000',
+            'Perfect for personal branding, lifestyle sessions, or modern portraits.',
+            "1 hour session\nProfessional editing\n20 final images",
+            0,
+            0,
+        ],
+        [
+            'Wedding Story',
+            '₹35,000',
+            'A complete documentary-style coverage designed around your celebration.',
+            "8 hours coverage\nCandid + portrait coverage\nHigh-resolution gallery",
+            1,
+            1,
+        ],
+        [
+            'Brand Content',
+            '₹22,000',
+            'Creative, polished imagery for founders, businesses, and campaigns.',
+            "Creative direction\nStudio or location shoot\nSocial-ready export set",
+            0,
+            2,
+        ],
+    ];
+    $insertPackage = $pdo->prepare('INSERT INTO packages (name, price, description, items, is_featured, order_index) VALUES (:name, :price, :description, :items, :is_featured, :order_index)');
+    foreach ($defaultPackages as [$name, $price, $description, $items, $featured, $order]) {
+        $insertPackage->execute([
+            ':name' => $name,
+            ':price' => $price,
+            ':description' => $description,
+            ':items' => $items,
+            ':is_featured' => $featured,
+            ':order_index' => $order,
+        ]);
     }
 }
 

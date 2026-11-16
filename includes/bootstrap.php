@@ -2,7 +2,7 @@
 session_start();
 
 const APP_ROOT = __DIR__ . '/..';
-const DB_PATH = APP_ROOT . '/db.sqlite3';
+const SQLITE_PATH = APP_ROOT . '/db.sqlite3';
 const MEDIA_ROOT = APP_ROOT . '/media';
 
 if (!is_dir(MEDIA_ROOT)) {
@@ -10,4 +10,5 @@ if (!is_dir(MEDIA_ROOT)) {
 }
 
 require_once __DIR__ . '/functions.php';
+loadAppEnvironment(APP_ROOT . '/.env');
 ensureAppDatabase();
