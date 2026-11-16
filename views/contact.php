@@ -1,5 +1,5 @@
 <?php
-$title = 'Contact Us - Ratnam Digitals';
+$title = 'Contact Us - Ratnam Photography';
 ?>
 
 <h1 class="page-title">Contact Us</h1>

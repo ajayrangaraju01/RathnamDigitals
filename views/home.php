@@ -1,5 +1,5 @@
 <?php
-$title = 'Ratnam Digitals - Professional Photography Studio';
+$title = 'Ratnam Photography - Professional Photography Studio';
 $heroSlides = getHeroSlides();
 $featuredImages = getFeaturedImages();
 $services = getActiveServices();
@@ -69,7 +69,7 @@ $testimonials = [
     [
         'name' => 'Mitra Studio',
         'role' => 'Brand collaboration',
-        'quote' => 'We needed polished content that still felt authentic. Ratnam Digitals delivered exactly that with consistency and attention to detail.',
+        'quote' => 'We needed polished content that still felt authentic. Ratnam Photography delivered exactly that with consistency and attention to detail.',
     ],
 ];
 
@@ -131,7 +131,7 @@ $testimonials = [
             <span class="section-kicker">Why choose us</span>
             <h2 class="section-title left-aligned">Crafted imagery, tailored to your vision.</h2>
         </div>
-        <p>At Ratnam Digitals, we create striking portraits, events, and commercial visuals with a refined editorial eye. Every frame is thoughtfully composed to feel authentic, elevated, and memorable.</p>
+        <p>At Ratnam Photography, we create striking portraits, events, and commercial visuals with a refined editorial eye. Every frame is thoughtfully composed to feel authentic, elevated, and memorable.</p>
     </div>
     <div class="stats-grid">
         <div class="stat-box">
@@ -191,12 +191,12 @@ $testimonials = [
 <section class="content-section brand-story-section">
     <div class="brand-story-layout">
         <div class="brand-story-image">
-            <img src="/static/images/logo.jpg" alt="Ratnam Digitals studio portrait" />
+            <img src="/static/images/logo.jpg" alt="Ratnam Photography studio portrait" />
         </div>
         <div class="brand-story-copy">
             <span class="section-kicker">Our Story</span>
             <h2 class="section-title left-aligned">We photograph the real feeling behind every milestone.</h2>
-            <p>Ratnam Digitals is built around honest, elegant storytelling. From weddings and portraits to commercial work, we focus on natural emotion, refined composition, and images that feel deeply personal.</p>
+            <p>Ratnam Photography is built around honest, elegant storytelling. From weddings and portraits to commercial work, we focus on natural emotion, refined composition, and images that feel deeply personal.</p>
             <p>Every session is approached with care, clarity, and an eye for detail so the results feel timeless rather than staged.</p>
             <a href="/about" class="btn btn-primary">Learn more</a>
         </div>

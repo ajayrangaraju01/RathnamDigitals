@@ -73,8 +73,15 @@
                             <input id="crop-x-<?= (int) $image['id'] ?>" type="range" name="crop_x" min="0" max="100" value="<?= number_format((float) ($image['carousel_crop_x'] ?? 50), 0, '.', '') ?>">
                             <label for="crop-y-<?= (int) $image['id'] ?>">Vertical framing</label>
                             <input id="crop-y-<?= (int) $image['id'] ?>" type="range" name="crop_y" min="0" max="100" value="<?= number_format((float) ($image['carousel_crop_y'] ?? 50), 0, '.', '') ?>">
-                            <button type="submit" class="mini-btn secondary">Save Changes</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
                         </form>
+                        <div class="admin-image-delete-wrap">
+                            <form method="post" action="/admin?page=upload" class="admin-image-delete" onsubmit="return confirm('Delete this photo from the library?');">
+                                <input type="hidden" name="image_action" value="delete">
+                                <input type="hidden" name="id" value="<?= (int) $image['id'] ?>">
+                                <button type="submit" class="btn btn-danger">Delete Photo</button>
+                            </form>
+                        </div>
                     </details>
                 </div>
             </article>

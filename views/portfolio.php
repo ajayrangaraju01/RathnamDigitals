@@ -1,5 +1,5 @@
 <?php
-$title = 'Portfolio - Ratnam Digitals';
+$title = 'Portfolio - Ratnam Photography';
 $category = $_GET['category'] ?? 'all';
 $pdo = getDb();
 
@@ -25,7 +25,7 @@ $categories = getImageCategories();
 <?php if (!empty($images)): ?>
     <div class="portfolio-grid">
         <?php foreach ($images as $image): ?>
-            <button type="button" class="portfolio-item" data-title="<?= htmlspecialchars($image['title'] ?: 'Ratnam Digitals') ?>" data-caption="<?= htmlspecialchars($image['caption'] ?: 'Curated photography by Ratnam Digitals.') ?>" data-image="/<?= htmlspecialchars($image['file']) ?>" data-crop-x="<?= number_format((float) ($image['carousel_crop_x'] ?? 50), 2, '.', '') ?>" data-crop-y="<?= number_format((float) ($image['carousel_crop_y'] ?? 50), 2, '.', '') ?>">
+            <button type="button" class="portfolio-item" data-title="<?= htmlspecialchars($image['title'] ?: 'Ratnam Photography') ?>" data-caption="<?= htmlspecialchars($image['caption'] ?: 'Curated photography by Ratnam Photography.') ?>" data-image="/<?= htmlspecialchars($image['file']) ?>" data-crop-x="<?= number_format((float) ($image['carousel_crop_x'] ?? 50), 2, '.', '') ?>" data-crop-y="<?= number_format((float) ($image['carousel_crop_y'] ?? 50), 2, '.', '') ?>">
                 <img src="/<?= htmlspecialchars($image['file']) ?>" alt="<?= htmlspecialchars($image['title'] ?: 'Portfolio image') ?>" style="object-position: <?= number_format((float) ($image['carousel_crop_x'] ?? 50), 2, '.', '') ?>% <?= number_format((float) ($image['carousel_crop_y'] ?? 50), 2, '.', '') ?>%;">
                 <span class="portfolio-item-overlay">
                     <span>View Details</span>
@@ -40,8 +40,8 @@ $categories = getImageCategories();
             <img id="portfolio-lightbox-image" src="" alt="">
             <div class="portfolio-lightbox-copy">
                 <span class="section-kicker">Portfolio</span>
-                <h3 id="portfolio-lightbox-title">Ratnam Digitals</h3>
-                <p id="portfolio-lightbox-caption">Curated photography by Ratnam Digitals.</p>
+                <h3 id="portfolio-lightbox-title">Ratnam Photography</h3>
+                <p id="portfolio-lightbox-caption">Curated photography by Ratnam Photography.</p>
                 <a href="/book" class="btn btn-primary">Book a session</a>
             </div>
         </div>

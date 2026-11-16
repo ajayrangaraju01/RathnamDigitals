@@ -1,5 +1,5 @@
 <?php
-$title = 'Services - Ratnam Digitals';
+$title = 'Services - Ratnam Photography';
 $services = getActiveServices();
 ?>
 

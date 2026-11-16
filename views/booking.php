@@ -1,5 +1,5 @@
 <?php
-$title = 'Book a Session - Ratnam Digitals';
+$title = 'Book a Session - Ratnam Photography';
 $submitted = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

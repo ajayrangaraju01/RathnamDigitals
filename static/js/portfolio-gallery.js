@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const openLightbox = (button) => {
         const img = button.querySelector('img');
-        const title = button.dataset.title || 'Ratnam Digitals';
-        const caption = button.dataset.caption || 'Curated photography by Ratnam Digitals.';
+        const title = button.dataset.title || 'Ratnam Photography';
+        const caption = button.dataset.caption || 'Curated photography by Ratnam Photography.';
 
         if (lightboxImage && img) {
             lightboxImage.src = img.src;

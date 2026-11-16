@@ -58,6 +58,30 @@ switch ($action) {
         break;
 
     case 'upload':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['image_action'] ?? '') === 'delete') {
+            $pdo = getDb();
+            $imageId = (int) ($_POST['id'] ?? 0);
+            $existingStmt = $pdo->prepare('SELECT file FROM images WHERE id = :id');
+            $existingStmt->execute([':id' => $imageId]);
+            $existing = $existingStmt->fetch();
+
+            if (!$existing) {
+                addFlash('error', 'The selected image could not be found.');
+                redirect('/admin?page=upload');
+            }
+
+            $storedPath = ltrim((string) $existing['file'], '/');
+            $absolutePath = APP_ROOT . '/' . $storedPath;
+            if (is_file($absolutePath)) {
+                unlink($absolutePath);
+            }
+
+            $stmt = $pdo->prepare('DELETE FROM images WHERE id = :id');
+            $stmt->execute([':id' => $imageId]);
+            addFlash('success', 'Photo deleted successfully.');
+            redirect('/admin?page=upload');
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['image_action'] ?? '') === 'update') {
             $pdo = getDb();
             $imageId = (int) ($_POST['id'] ?? 0);

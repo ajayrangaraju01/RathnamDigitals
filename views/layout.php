@@ -6,14 +6,14 @@ $flashMessages = getFlashMessages();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title ?? 'Ratnam Digitals') ?></title>
+    <title><?= htmlspecialchars($title ?? 'Ratnam Photography') ?></title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body class="<?= parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' ? 'home-page' : '' ?>">
     <nav class="navbar">
         <a href="/" class="logo">
-            <img src="/static/images/logo.jpg" alt="Ratnam Digitals" class="logo-img">
-            <span>Ratnam Digitals</span>
+            <img src="/static/images/logo.jpg" alt="Ratnam Photography" class="logo-img">
+            <span>Ratnam Photography</span>
         </a>
         <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="primary-navigation">
             <span></span>
@@ -40,7 +40,7 @@ $flashMessages = getFlashMessages();
     </main>
 
     <footer>
-        <p>&copy; 2026 Ratnam Digitals. All rights reserved.</p>
+        <p>&copy; 2026 Ratnam Photography. All rights reserved.</p>
     </footer>
     <script src="/static/js/mobile-nav.js"></script>
 </body>
